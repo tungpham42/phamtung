@@ -8,13 +8,15 @@ const BankInfo = () => {
     bankName: false,
     accountNumber: false,
     beneficiaryName: false,
-    allInfo: false, // New state for copying all info
+    swiftCode: false, // New state for SWIFT code
+    allInfo: false,
   });
 
   const bankDetails = {
     bankName: "TECHCOMBANK",
     accountNumber: "19027906069012",
     beneficiaryName: "PHAM TUNG",
+    swiftCode: "VTCBVNVX", // Added SWIFT code
   };
 
   const handleCopy = (text, field) => {
@@ -25,7 +27,7 @@ const BankInfo = () => {
   };
 
   const handleCopyAll = () => {
-    const allInfo = `Bank Name: ${bankDetails.bankName}\nAccount Number: ${bankDetails.accountNumber}\nBeneficiary Name: ${bankDetails.beneficiaryName}`;
+    const allInfo = `Bank Name: ${bankDetails.bankName}\nAccount Number: ${bankDetails.accountNumber}\nBeneficiary Name: ${bankDetails.beneficiaryName}\nSWIFT Code: ${bankDetails.swiftCode}`;
     navigator.clipboard.writeText(allInfo).then(() => {
       setCopied({ ...copied, allInfo: true });
       setTimeout(() => setCopied({ ...copied, allInfo: false }), 3000);
@@ -84,6 +86,20 @@ const BankInfo = () => {
                   icon={copied.beneficiaryName ? faCheck : faCopy}
                 />{" "}
                 {copied.beneficiaryName ? " Copied!" : " Copy"}
+              </Button>
+            </Col>
+          </Row>
+          <Row className="mb-3">
+            <Col>
+              <strong>SWIFT Code:</strong> {bankDetails.swiftCode}
+              <Button
+                variant="outline-primary"
+                size="sm"
+                className="ms-2"
+                onClick={() => handleCopy(bankDetails.swiftCode, "swiftCode")}
+              >
+                <FontAwesomeIcon icon={copied.swiftCode ? faCheck : faCopy} />{" "}
+                {copied.swiftCode ? " Copied!" : " Copy"}
               </Button>
             </Col>
           </Row>
