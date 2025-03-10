@@ -14,8 +14,6 @@ import firebaseApp from "./firebaseConfig"; // Import your Firebase configuratio
 const auth = getAuth(firebaseApp);
 const allowedEmails = [
   "tung.42@gmail.com",
-  "tungpham@kambria.io",
-  "tungpham@ohmnilabs.com",
   "cotuongdottop@gmail.com",
   "cungraodotnet@gmail.com",
 ];
