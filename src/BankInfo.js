@@ -27,7 +27,8 @@ const BankInfo = () => {
     swiftCode: false,
     allInfo: false,
   });
-  const [error, setError] = useState(null); // Added error state
+  const [error, setError] = useState(null);
+  const [isSigningIn, setIsSigningIn] = useState(false); // New state to track sign-in process
 
   const bankDetails = {
     bankName: "TECHCOMBANK",
@@ -52,10 +53,12 @@ const BankInfo = () => {
   };
 
   const signInWithGoogle = async () => {
+    if (isSigningIn) return; // Prevent multiple clicks
+    setIsSigningIn(true); // Disable button
+    setError(null);
+
     try {
-      setError(null); // Clear any previous errors
       const provider = new GoogleAuthProvider();
-      // Add optional prompt for account selection
       provider.setCustomParameters({
         prompt: "select_account",
       });
@@ -63,14 +66,23 @@ const BankInfo = () => {
     } catch (error) {
       console.error("Error during sign-in:", error);
       setError(error.message);
-      // Handle specific Firebase errors
-      if (error.code === "auth/popup-blocked") {
-        alert(
+      if (error.code === "auth/cancelled-popup-request") {
+        setError(
+          "Sign-in was canceled due to multiple requests. Please try again."
+        );
+      } else if (error.code === "auth/popup-blocked") {
+        setError(
           "Popup was blocked by the browser. Please allow popups for this site."
         );
       } else if (error.code === "auth/popup-closed-by-user") {
-        setError("Sign-in popup was closed before completion");
+        setError("Sign-in popup was closed before completion.");
+      } else if (error.code === "auth/unauthorized-domain") {
+        setError(
+          "This domain is not authorized. Please check Firebase Console settings."
+        );
       }
+    } finally {
+      setIsSigningIn(false); // Re-enable button
     }
   };
 
@@ -90,9 +102,9 @@ const BankInfo = () => {
           <Button
             variant="primary"
             onClick={signInWithGoogle}
-            disabled={!!error} // Disable button if there's an error
+            disabled={isSigningIn} // Disable button while signing in
           >
-            Sign in with Google
+            {isSigningIn ? "Signing In..." : "Sign in with Google"}
           </Button>
           {error && <p className="text-danger mt-2">{error}</p>}
         </>
@@ -104,7 +116,6 @@ const BankInfo = () => {
           <Card className="mt-3">
             <Card.Header as="h5">Bank Information of Pham Tung</Card.Header>
             <Card.Body>
-              {/* Rest of your card content remains the same */}
               <Row className="mb-3">
                 <Col>
                   <strong>Bank Name:</strong> {bankDetails.bankName}
