@@ -9,7 +9,7 @@ import {
   getAuth,
 } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
-import firebaseApp from "./firebaseConfig"; // Import your Firebase configuration
+import firebaseApp from "./firebaseConfig";
 
 const auth = getAuth(firebaseApp);
 const allowedEmails = [
@@ -27,6 +27,7 @@ const BankInfo = () => {
     swiftCode: false,
     allInfo: false,
   });
+  const [error, setError] = useState(null); // Added error state
 
   const bankDetails = {
     bankName: "TECHCOMBANK",
@@ -50,21 +51,51 @@ const BankInfo = () => {
     });
   };
 
-  const signInWithGoogle = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider);
+  const signInWithGoogle = async () => {
+    try {
+      setError(null); // Clear any previous errors
+      const provider = new GoogleAuthProvider();
+      // Add optional prompt for account selection
+      provider.setCustomParameters({
+        prompt: "select_account",
+      });
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      setError(error.message);
+      // Handle specific Firebase errors
+      if (error.code === "auth/popup-blocked") {
+        alert(
+          "Popup was blocked by the browser. Please allow popups for this site."
+        );
+      } else if (error.code === "auth/popup-closed-by-user") {
+        setError("Sign-in popup was closed before completion");
+      }
+    }
   };
 
-  const handleLogout = () => {
-    signOut(auth);
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error during logout:", error);
+      setError(error.message);
+    }
   };
 
   return (
     <Container className="mt-5 col-lg-6 col-md-8 col-sm-12 col-12">
       {!user ? (
-        <Button variant="primary" onClick={signInWithGoogle}>
-          Sign in with Google
-        </Button>
+        <>
+          <Button
+            variant="primary"
+            onClick={signInWithGoogle}
+            disabled={!!error} // Disable button if there's an error
+          >
+            Sign in with Google
+          </Button>
+          {error && <p className="text-danger mt-2">{error}</p>}
+        </>
       ) : allowedEmails.includes(user.email) ? (
         <>
           <Button variant="danger" onClick={handleLogout}>
@@ -73,6 +104,7 @@ const BankInfo = () => {
           <Card className="mt-3">
             <Card.Header as="h5">Bank Information of Pham Tung</Card.Header>
             <Card.Body>
+              {/* Rest of your card content remains the same */}
               <Row className="mb-3">
                 <Col>
                   <strong>Bank Name:</strong> {bankDetails.bankName}
