@@ -29,7 +29,6 @@ const BankInfo = () => {
     swiftCode: false,
     allInfo: false,
   });
-  const [loading, setLoading] = useState(false);
 
   const bankDetails = {
     bankName: "TECHCOMBANK",
@@ -53,18 +52,9 @@ const BankInfo = () => {
     });
   };
 
-  const signInWithGoogle = async () => {
-    if (loading) return; // Prevent multiple clicks
-
-    setLoading(true);
+  const signInWithGoogle = () => {
     const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    signInWithPopup(auth, provider);
   };
 
   const handleLogout = () => {
